@@ -35,10 +35,10 @@
 #define PROGID _T("mplayerc")
 #endif // _WIN64
 
-LPCTSTR CFileAssoc::strRegisteredAppName  = _T("Media Player Classic");
+LPCTSTR CFileAssoc::strRegisteredAppName  = _T("MPC-HC");
 LPCTSTR CFileAssoc::strOldAssocKey        = _T("PreviousRegistration");
-LPCTSTR CFileAssoc::strRegisteredAppKey   = _T("Software\\Clients\\Media\\Media Player Classic\\Capabilities");
-LPCTSTR CFileAssoc::strRegAppFileAssocKey = _T("Software\\Clients\\Media\\Media Player Classic\\Capabilities\\FileAssociations");
+LPCTSTR CFileAssoc::strRegisteredAppKey   = _T("Software\\Clients\\Media\\MPC-HC\\Capabilities");
+LPCTSTR CFileAssoc::strRegAppFileAssocKey = _T("Software\\Clients\\Media\\MPC-HC\\Capabilities\\FileAssociations");
 
 bool CFileAssoc::m_bNoRecentDocs = false;
 
@@ -167,7 +167,7 @@ bool CFileAssoc::RegisterApp()
         CRegKey key;
 
         if (ERROR_SUCCESS == key.Open(HKEY_LOCAL_MACHINE, _T("SOFTWARE\\RegisteredApplications"))) {
-            key.SetStringValue(_T("Media Player Classic"), strRegisteredAppKey);
+            key.SetStringValue(_T("MPC-HC"), strRegisteredAppKey);
 
             if (ERROR_SUCCESS == key.Create(HKEY_LOCAL_MACHINE, strRegisteredAppKey)) {
                 // ==>>  TODO icon !!!
@@ -630,25 +630,25 @@ bool CFileAssoc::RegisterAutoPlay(autoplay_t ap, bool bRegister)
     CRegKey key;
 
     if (bRegister) {
-        if (ERROR_SUCCESS != key.Create(HKEY_CLASSES_ROOT, _T("MediaPlayerClassic.Autorun"))) {
+        if (ERROR_SUCCESS != key.Create(HKEY_CLASSES_ROOT, _T("MPC-HC.Autorun"))) {
             return false;
         }
         key.Close();
 
         if (ERROR_SUCCESS != key.Create(HKEY_CLASSES_ROOT,
-                                        _T("MediaPlayerClassic.Autorun\\Shell\\Play") + handlers[i].verb + _T("\\Command"))) {
+                                        _T("MPC-HC.Autorun\\Shell\\Play") + handlers[i].verb + _T("\\Command"))) {
             return false;
         }
         key.SetStringValue(nullptr, _T("\"") + exe + _T("\"") + handlers[i].cmd);
         key.Close();
 
         if (ERROR_SUCCESS != key.Create(HKEY_LOCAL_MACHINE,
-                                        _T("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\AutoplayHandlers\\Handlers\\MPCPlay") + handlers[i].verb + _T("OnArrival"))) {
+                                        _T("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\AutoplayHandlers\\Handlers\\MPC-HC") + handlers[i].verb + _T("OnArrival"))) {
             return false;
         }
         key.SetStringValue(_T("Action"), ResStr(handlers[i].action));
-        key.SetStringValue(_T("Provider"), _T("Media Player Classic"));
-        key.SetStringValue(_T("InvokeProgID"), _T("MediaPlayerClassic.Autorun"));
+        key.SetStringValue(_T("Provider"), _T("MPC-HC"));
+        key.SetStringValue(_T("InvokeProgID"), _T("MPC-HC.Autorun"));
         key.SetStringValue(_T("InvokeVerb"), _T("Play") + handlers[i].verb);
         key.SetStringValue(_T("DefaultIcon"), exe + _T(",0"));
         key.Close();
@@ -657,14 +657,14 @@ bool CFileAssoc::RegisterAutoPlay(autoplay_t ap, bool bRegister)
                                         _T("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\AutoplayHandlers\\EventHandlers\\Play") + handlers[i].verb + _T("OnArrival"))) {
             return false;
         }
-        key.SetStringValue(CString("MPCPlay") + handlers[i].verb + _T("OnArrival"), _T(""));
+        key.SetStringValue(CString("MPC-HC") + handlers[i].verb + _T("OnArrival"), _T(""));
         key.Close();
     } else {
         if (ERROR_SUCCESS != key.Create(HKEY_LOCAL_MACHINE,
                                         _T("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\AutoplayHandlers\\EventHandlers\\Play") + handlers[i].verb + _T("OnArrival"))) {
             return false;
         }
-        key.DeleteValue(_T("MPCPlay") + handlers[i].verb + _T("OnArrival"));
+        key.DeleteValue(_T("MPC-HC") + handlers[i].verb + _T("OnArrival"));
         key.Close();
     }
 
@@ -690,13 +690,13 @@ bool CFileAssoc::IsAutoPlayRegistered(autoplay_t ap)
         return false;
     }
     len = _countof(buff);
-    if (ERROR_SUCCESS != key.QueryStringValue(_T("MPCPlay") + handlers[i].verb + _T("OnArrival"), buff, &len)) {
+    if (ERROR_SUCCESS != key.QueryStringValue(_T("MPC-HC") + handlers[i].verb + _T("OnArrival"), buff, &len)) {
         return false;
     }
     key.Close();
 
     if (ERROR_SUCCESS != key.Open(HKEY_CLASSES_ROOT,
-                                  _T("MediaPlayerClassic.Autorun\\Shell\\Play") + handlers[i].verb + _T("\\Command"),
+                                  _T("MPC-HC.Autorun\\Shell\\Play") + handlers[i].verb + _T("\\Command"),
                                   KEY_READ)) {
         return false;
     }
