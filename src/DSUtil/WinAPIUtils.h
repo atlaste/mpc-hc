@@ -41,6 +41,8 @@ bool ExploreToFile(LPCTSTR path);
 bool FileExists(LPCTSTR fileName);
 HRESULT FileDelete(CString file, HWND hWnd, bool recycle = true);
 
+LONG RegRenameValue(HKEY hKey, LPCTSTR lpSubKeyName, LPCTSTR lpNewKeyName);
+
 CString GetProgramPath(bool bWithExecutableName = false);
 
 class CoInitializeHelper

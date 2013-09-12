@@ -321,3 +321,38 @@ HRESULT FileDelete(CString file, HWND hWnd, bool recycle /*= true*/)
     TRACE(_T("Delete recycle=%d hRes=0x%08x, file=%s\n"), recycle, hRes, file);
     return hRes;
 }
+
+LONG RegRenameValue(HKEY hKey, LPCTSTR lpSubKeyName, LPCTSTR lpNewKeyName)
+{
+    LONG errorCode;
+
+    // Query the buffer size
+    ULONG len = 0;
+    errorCode = RegQueryValueEx(hKey, lpSubKeyName, 0, nullptr, nullptr, &len);
+    if (errorCode != ERROR_SUCCESS) {
+        return errorCode;
+    }
+
+    // Allocate the buffer and query the data
+    BYTE* buff = DEBUG_NEW BYTE[len];
+    DWORD type;
+    errorCode = RegQueryValueEx(hKey, lpSubKeyName, 0, &type, buff, &len);
+    if (errorCode != ERROR_SUCCESS) {
+        delete [] buff;
+        return errorCode;
+    }
+
+    // Delete the old data, this has to be done before we set the
+    // new data so we can make changes to capitalization.
+    errorCode = RegDeleteValue(hKey, lpSubKeyName);
+    if (errorCode != ERROR_SUCCESS) {
+        delete [] buff;
+        return errorCode;
+    }
+
+    // Set the data at the new location
+    errorCode = RegSetValueEx(hKey, lpNewKeyName, 0, type, buff, len);
+
+    delete [] buff;
+    return errorCode;
+}
