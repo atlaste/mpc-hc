@@ -155,6 +155,7 @@ CDX9RenderingEngine::CDX9RenderingEngine(HWND hWnd, HRESULT& hr, CString* _pErro
     if (m_bD3DX) {
         (FARPROC&)m_pD3DXFloat32To16Array = GetProcAddress(hDll, "D3DXFloat32To16Array");
     }
+
 }
 
 void CDX9RenderingEngine::InitRenderingEngine()
@@ -209,7 +210,7 @@ HRESULT CDX9RenderingEngine::CreateVideoSurfaces()
     }
 
     if (r.iAPSurfaceUsage == VIDRNDT_AP_TEXTURE2D || r.iAPSurfaceUsage == VIDRNDT_AP_TEXTURE3D) {
-        int nTexturesNeeded = r.iAPSurfaceUsage == VIDRNDT_AP_TEXTURE3D ? m_nNbDXSurface : 1;
+        int nTexturesNeeded = (r.iAPSurfaceUsage == VIDRNDT_AP_TEXTURE3D ? m_nNbDXSurface : 1);
 
         for (int i = 0; i < nTexturesNeeded; i++) {
             if (FAILED(hr = m_pD3DDev->CreateTexture(
@@ -249,7 +250,7 @@ HRESULT CDX9RenderingEngine::CreateVideoSurfaces()
     }
 
     hr = m_pD3DDev->Clear(0, nullptr, D3DCLEAR_TARGET, 0, 1, 0);
-
+	
     return S_OK;
 }
 
@@ -266,12 +267,21 @@ HRESULT CDX9RenderingEngine::RenderVideo(IDirect3DSurface9* pRenderTarget, const
     if (destRect.IsRectEmpty()) {
         return S_OK;
     }
-
-    if (m_RenderingPath == RENDERING_PATH_DRAW) {
-        return RenderVideoDrawPath(pRenderTarget, srcRect, destRect);
+	HRESULT hr;
+    
+	if (m_RenderingPath == RENDERING_PATH_DRAW) {
+        if ((hr = RenderVideoDrawPath(pRenderTarget, srcRect, destRect)) != S_OK)
+		{
+			return hr;
+		}
     } else {
-        return RenderVideoStretchRectPath(pRenderTarget, srcRect, destRect);
+        if ((hr = RenderVideoStretchRectPath(pRenderTarget, srcRect, destRect)) != S_OK)
+		{
+			return hr;
+		}
     }
+
+	return hr;
 }
 
 HRESULT CDX9RenderingEngine::RenderVideoDrawPath(IDirect3DSurface9* pRenderTarget, const CRect& srcRect, const CRect& destRect)

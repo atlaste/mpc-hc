@@ -19,7 +19,6 @@
  */
 
 #pragma once
-
 #include "../../../SubPic/ISubPic.h"
 #include "RenderersSettings.h"
 #include "SyncAllocatorPresenter.h"

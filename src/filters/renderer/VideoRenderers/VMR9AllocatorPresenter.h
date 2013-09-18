@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include "Base3DRenderer.h"
+#include "Seefront3DRenderer.h"
 #include "DX9AllocatorPresenter.h"
 
 namespace DSObjects
@@ -39,6 +41,9 @@ namespace DSObjects
 
         bool m_fUseInternalTimer;
         REFERENCE_TIME m_rtPrevStart;
+
+		HWND hWnd;
+		Base3DRenderer *renderer;
 
     public:
         CVMR9AllocatorPresenter(HWND hWnd, bool bFullscreen, HRESULT& hr, CString& _Error);
