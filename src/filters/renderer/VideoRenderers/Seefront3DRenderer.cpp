@@ -113,11 +113,11 @@ namespace DSObjects
 			// Stop the tracker
 			this->stopTrackerUpdate(this->seefront_data);
 
-			// Destroy the thing
-			this->destroyInstance(this->seefront_data);
-
 			// Release
 			this->release(this->seefront_data);
+
+			// Destroy the thing
+			this->destroyInstance(this->seefront_data);
 
 			// Done, ensure it's gone for good.
 			this->seefront_data = 0;

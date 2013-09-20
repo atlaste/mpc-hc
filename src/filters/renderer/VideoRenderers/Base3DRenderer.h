@@ -46,6 +46,7 @@
 #include <d3d9.h>
 #include <d3dx9.h>
 #include <afxwin.h>
+#include <atlsync.h>
 
 namespace DSObjects
 {
@@ -58,16 +59,42 @@ namespace DSObjects
 		int textureWidth;
 		int textureHeight;
 
+		/*
+		 * The rendering that interlaces, calculates eye position and does its magic in the driver seems to take 
+		 * quite a bit of time. I therefore experimented with multi-threaded rendering. The basic idea is that you 
+		 * are writing in 1 texture pair while rendering the other one in another thread. The moment you're done 
+		 * rendering, you simply swap the textures and start over.
+		 *
+		 * Unfortunately, this is seems to work much worse than the single-threaded mode. Unless we have a proper 
+		 * signalling mechanism, you should leave this at mode=0.
+		 */
+		static const int mode = 0; 
+
+		volatile int textureIndexWrite;
+		volatile int textureWriteState;
+
+		static UINT StartRenderThread(LPVOID pParam) {
+			Base3DRenderer* renderer = (Base3DRenderer*)pParam;
+			renderer->Run();
+			
+			return 0;
+		};
+		void Run();
+
+		::CCriticalSection *swapLock;
+
 	protected:
 		IDirect3DDevice9* device;
 
 	public:
 		Base3DRenderer(IDirect3DDevice9* device, const CSize &monitorSize);
 		void UpdateWindow(int left, int top, int width, int height);
+		
+		int GetRenderIndex();
 		void Render();
 
-		IDirect3DSurface9* GetLeftEye();
-		IDirect3DSurface9* GetRightEye();
+		IDirect3DSurface9* GetLeftEye(int renderIndex);
+		IDirect3DSurface9* GetRightEye(int renderIndex);
 
 		virtual void Initialize3DDevice(IDirect3DDevice9* device, const CSize &monitorSize) = 0;
 		virtual void UpdateTextureSize(int textureWidth, int textureHeight) = 0;
