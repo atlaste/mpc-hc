@@ -523,23 +523,18 @@ STDMETHODIMP CVMR9AllocatorPresenter::PresentImage(DWORD_PTR dwUserID, VMR9Prese
 
 	// Put it on the screen scene
 	HRESULT hr;
-	
-	RenderVideo(renderer->GetLeftEye(), leftEye, windowRect);
-	RenderVideo(renderer->GetRightEye(), rightEye, windowRect);
 
-    CComPtr<IDirect3DSurface9> pBackBuffer;
-	m_pD3DDev->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &pBackBuffer);
+	int index = renderer->GetRenderIndex();
 
-    // Clear the backbuffer
-    m_pD3DDev->SetRenderTarget(0, pBackBuffer);
-    hr = m_pD3DDev->Clear(0, nullptr, D3DCLEAR_TARGET, 0xFF0000, 1.0f, 0);
+	if (index >= 0) 
+	{
+		RenderVideo(renderer->GetLeftEye(index), leftEye, windowRect);
+		RenderVideo(renderer->GetRightEye(index), rightEye, windowRect);
+		
+		// Render the frame!
+		renderer->Render();
 
-	// Render the frame!
-	renderer->Render();
-
-	// Draw on the window
-	m_pD3DDev->Present(0,0,0,0); // display
-
+	}
     return S_OK;
 }
 
